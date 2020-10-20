@@ -15,7 +15,5 @@
 echo "Patience"
 make clean
 make 
-#taskset -c 0 ./clean_meshfree /opt/grids/quadtree/part/partGrid800K 1000 &
-taskset -c 1 ./clean_meshfree /opt/grids/quadtree/part/partGrid2.5M 100 &
-taskset -c 2 ./clean_meshfree /opt/grids/quadtree/part/partGrid2.5M 1000
+./meshfree /opt/grids/quadtree/part/partGrid40K 10
 

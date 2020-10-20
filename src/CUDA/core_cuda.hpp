@@ -51,39 +51,39 @@ struct TempqDers
 	}
 };
 
-// struct Point
-// {
-// 	int localID;
-// 	double x, y;
-// 	int left, right;
-// 	int flag_1, flag_2; // Int8 in the Julia code
-// 	double short_distance;
-// 	int nbhs;
-// 	int conn[20];
-// 	double nx, ny;
-// 	// Size 4 (Pressure, vx, vy, density) x numberpts
-// 	double prim[4];
-// 	double flux_res[4];
-// 	double q[4];
-// 	// Size 2(x,y) 4(Pressure, vx, vy, density) numberpts
-// 	double dq1[4];
-// 	double dq2[4];
-// 	double entropy;
-// 	int xpos_nbhs, xneg_nbhs, ypos_nbhs, yneg_nbhs;
-// 	int xpos_conn[20];
-// 	int xneg_conn[20];
-// 	int ypos_conn[20];
-// 	int yneg_conn[20];
-// 	double delta;
-// 	double max_q[4];
-// 	double min_q[4];
-// 	double prim_old[4];
+struct Point
+{
+	int localID;
+	double x, y;
+	int left, right;
+	int flag_1, flag_2; // Int8 in the Julia code
+	double short_distance;
+	int nbhs;
+	int conn[20];
+	double nx, ny;
+	// Size 4 (Pressure, vx, vy, density) x numberpts
+	double prim[4];
+	double flux_res[4];
+	double q[4];
+	// Size 2(x,y) 4(Pressure, vx, vy, density) numberpts
+	double dq1[4];
+	double dq2[4];
+	double entropy;
+	int xpos_nbhs, xneg_nbhs, ypos_nbhs, yneg_nbhs;
+	int xpos_conn[20];
+	int xneg_conn[20];
+	int ypos_conn[20];
+	int yneg_conn[20];
+	double delta;
+	double max_q[4];
+	double min_q[4];
+	double prim_old[4];
 
-// 	//Point Constructor
+	//Point Constructor
 
-// 	Point() {}
+	Point() {}
 
-// };
+};
 
 struct Config
 {
@@ -215,9 +215,9 @@ xy_tuple calculateNormals(xy_tuple left, xy_tuple right, double mx, double my);
 
 void calculateConnectivity(Point* globaldata, int idx);
 
-void fpi_solver(int iter, Point* globaldata_d, Config configData, double* res_old_d, double* res_sqr_d, int numPoints, TempqDers* tempdq_d, cudaStream_t stream, double res_old[1], double* res_sqr, unsigned int mem_size_C, unsigned int mem_size_D);
+void fpi_solver(int iter, Point* globaldata_d, Config configData, double* res_old_d, double* res_sqr_d, int numPoints, TempqDers* tempdq_d, cudaStream_t& stream, cudaGraph_t& graph, cudaGraphExec_t& instance, bool& graphCreated, double res_old[1], double* res_sqr, unsigned int mem_size_C, unsigned int mem_size_D);
 
-void call_rem_fpi_solver_cuda(Point* globaldata_d, int numPoints, double power, TempqDers* tempdq_d, int block_size, Config configData, double* res_old_d, double* res_sqr_d, int iter, int rk, int rks, dim3 threads, dim3 grid, cudaStream_t stream, double res_old[1], double* res_sqr, unsigned int mem_size_C, unsigned int mem_size_D);
+void call_rem_fpi_solver_cuda(Point* globaldata_d, int numPoints, double power, TempqDers* tempdq_d, int block_size, Config configData, double* res_old_d, double* res_sqr_d, int iter, int rk, int rks, dim3 threads, dim3 grid, cudaStream_t& stream, cudaGraph_t& graph, cudaGraphExec_t& instance, bool& graphCreated, double res_old[1], double* res_sqr, unsigned int mem_size_C, unsigned int mem_size_D);
 
 __global__ void q_variables_cuda(Point* globaldata, int numPoints, double power, dim3 thread_dim);
 
