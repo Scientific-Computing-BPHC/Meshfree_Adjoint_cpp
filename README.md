@@ -3,7 +3,7 @@
 Scientific Computing @ BITS Pilani - Hyderabad Campus.
 
 Development of the adjoint meshfree solver for inviscid compressible fluid flows in C++. The meshfree solver is based on the Least Squares
-Kinetic Upwind Method (q-LSKUM), developed by Deshpande et. al [link to primal solver]{https://github.com/Scientific-Computing-BPHC/Meshfree_cpp}. The adjoint solver is developed using CoDiPack, an operator overloading based automatic differentiation package developed by our collaborators at TU - Kaiserslautern. AD allows for the computation of fast and efficient gradient, within a constant factor times the time taken for the primal function evaluation. The adjoint solver equips us with sensitivity information of the shape with repsect to the input variables, and can be used for gradient enhanced aerodynamic shape optimization.
+Kinetic Upwind Method (q-LSKUM), developed by Deshpande et. al [link to primal solver](https://github.com/Scientific-Computing-BPHC/Meshfree_cpp). The adjoint solver is developed using CoDiPack, an operator overloading based automatic differentiation package developed by our collaborators at TU - Kaiserslautern. AD allows for the computation of fast and efficient gradient, within a constant factor times the time taken for the primal function evaluation. The adjoint solver equips us with sensitivity information of the shape with repsect to the input variables, and can be used for gradient enhanced aerodynamic shape optimization.
 
 This work is done as part of my M.Sc. (Hons.) Mathematics Thesis, under the guidance of Dr. N. Anil, Assistant Professor, Department of Mathematics, BITS Pilani - Hyderabad Campus, and Professor S.M. Deshpande, Jawaharlal Nehru Cente for Advanced Scientific Research. 
 
