@@ -4,9 +4,9 @@
 #include "flux_residual.hpp"
 #include "utils.hpp"
 
-inline void q_var_derivatives_update(double sig_del_x_sqr, double sig_del_y_sqr, double sig_del_x_del_y, double sig_del_x_del_q[4], double sig_del_y_del_q[4], double dq1_store[4], double dq2_store[2]);
-inline void q_var_derivatives_get_sum_delq_innerloop(Point* globaldata, int idx, int conn, double weights, double delta_x, double delta_y, double qi_tilde[4], double qk_tilde[4], double sig_del_x_del_q[4], double sig_del_y_del_q[4]);
-inline void q_var_derivatives_update_innerloop(double dq1[4], double dq2[4], int idx, TempqDers* tempdq);
+inline void q_var_derivatives_update(codi::RealReverse sig_del_x_sqr, codi::RealReverse sig_del_y_sqr, codi::RealReverse sig_del_x_del_y, codi::RealReverse sig_del_x_del_q[4], codi::RealReverse sig_del_y_del_q[4], codi::RealReverse dq1_store[4], codi::RealReverse dq2_store[2]);
+inline void q_var_derivatives_get_sum_delq_innerloop(CodiPoint* globaldata, int idx, int conn, codi::RealReverse weights, codi::RealReverse delta_x, codi::RealReverse delta_y, codi::RealReverse qi_tilde[4], codi::RealReverse qk_tilde[4], codi::RealReverse sig_del_x_del_q[4], codi::RealReverse sig_del_y_del_q[4]);
+inline void q_var_derivatives_update_innerloop(codi::RealReverse dq1[4], codi::RealReverse dq2[4], int idx, CodiTempqDers* tempdq);
 
 template <class Type>
 bool isNan(Type var)
@@ -16,24 +16,24 @@ bool isNan(Type var)
 }
 
 
-double calculateTheta(Config configData)
+codi::RealReverse calculateTheta(CodiConfig configData)
 {
     return (configData.core.aoa * (M_PI)/180.0);
 }
 
-void getInitialPrimitive(Config configData, double primal[4])
+void getInitialPrimitive(CodiConfig configData, codi::RealReverse primal[4])
 {
 	primal[0] = configData.core.rho_inf;
-	double mach = configData.core.mach;
-	double machcos = mach * cos(calculateTheta(configData));
-	double machsin = mach * sin(calculateTheta(configData));
+	codi::RealReverse mach = configData.core.mach;
+	codi::RealReverse machcos = mach * cos(calculateTheta(configData));
+	codi::RealReverse machsin = mach * sin(calculateTheta(configData));
 	primal[1] = machcos;
 	primal[2] = machsin;
 	primal[3] = configData.core.pr_inf;
 
 }
 
-void placeNormals(Point* globaldata, int idx, Config configData, long long interior, long long wall, long long outer)
+void placeNormals(CodiPoint* globaldata, int idx, CodiConfig configData, long long interior, long long wall, long long outer)
 {
 	int flag = globaldata[idx].flag_1;
     if (flag == wall || flag == outer)
@@ -56,41 +56,42 @@ void placeNormals(Point* globaldata, int idx, Config configData, long long inter
     	cout<<"Illegal Point Type"<<endl;
 }
 
-xy_tuple calculateNormals(xy_tuple left, xy_tuple right, double mx, double my)
+xy_tuple calculateNormals(xy_tuple left, xy_tuple right, codi::RealReverse mx, codi::RealReverse my)
 {
-	double lx = std::get<0>(left);
-	double ly = std::get<1>(left);
+	codi::RealReverse lx = std::get<0>(left);
+	codi::RealReverse ly = std::get<1>(left);
 
-	double rx = std::get<0>(right);
-	double ry = std::get<1>(right);
+	codi::RealReverse rx = std::get<0>(right);
+	codi::RealReverse ry = std::get<1>(right);
 
-	double nx1 = my - ly;
-	double nx2 = ry - my;
+	codi::RealReverse nx1 = my - ly;
+	codi::RealReverse nx2 = ry - my;
 
-	double ny1 = mx - lx;
-	double ny2 = rx - mx;
+	codi::RealReverse ny1 = mx - lx;
+	codi::RealReverse ny2 = rx - mx;
 
-	double nx = 0.5*(nx1 + nx2);
-	double ny = 0.5*(ny1 + ny2);
+	codi::RealReverse nx = 0.5*(nx1 + nx2);
+	codi::RealReverse ny = 0.5*(ny1 + ny2);
 
-	double det = hypot(nx, ny);
+	//codi::RealReverse det = hypot(nx, ny);
+    codi::RealReverse det = sqrt(nx*nx + ny*ny);
 	nx = -nx/det;
 	ny = ny/det;
 
 	return std::make_tuple(nx, ny);
 }
 
-void calculateConnectivity(Point* globaldata, int idx)
+void calculateConnectivity(CodiPoint* globaldata, int idx)
 {
-	Point ptInterest = globaldata[idx];
-	double currx = ptInterest.x;
-    double curry = ptInterest.y;
-    double nx = ptInterest.nx;
-    double ny = ptInterest.ny;
+	CodiPoint ptInterest = globaldata[idx];
+	codi::RealReverse currx = ptInterest.x;
+    codi::RealReverse curry = ptInterest.y;
+    codi::RealReverse nx = ptInterest.nx;
+    codi::RealReverse ny = ptInterest.ny;
 
     int flag = ptInterest.flag_1;
-    double tx = ny;
-    double ty = -nx;
+    codi::RealReverse tx = ny;
+    codi::RealReverse ty = -nx;
     int xpos_nbhs = 0;
     int xneg_nbhs = 0;
     int ypos_nbhs = 0;
@@ -113,14 +114,14 @@ void calculateConnectivity(Point* globaldata, int idx)
         itm = itm -1; // to account for indexing
 
     	//cout<< "\n Unbroken \n";
-    	double itmx = globaldata[itm].x;
-    	double itmy = globaldata[itm].y;
+    	codi::RealReverse itmx = globaldata[itm].x;
+    	codi::RealReverse itmy = globaldata[itm].y;
 
-    	double delta_x = itmx - currx;
-    	double delta_y = itmy - curry;
+    	codi::RealReverse delta_x = itmx - currx;
+    	codi::RealReverse delta_y = itmy - curry;
 
-    	double delta_s = delta_x*tx + delta_y*ty;
-    	double delta_n = delta_x*nx + delta_y*ny;
+    	codi::RealReverse delta_s = delta_x*tx + delta_y*ty;
+    	codi::RealReverse delta_n = delta_x*nx + delta_y*ny;
 
         itm = itm + 1; // to reaccount for indexing when we add the point below xpos_conn[xpos_nbhs] = itm;
 
@@ -186,22 +187,22 @@ void calculateConnectivity(Point* globaldata, int idx)
 
 }
 
-void fpi_solver(int iter, Point* globaldata, Config configData, double res_old[1], int numPoints, TempqDers* tempdq)
+void fpi_solver_codi(int iter, CodiPoint* globaldata, CodiConfig configData, codi::RealReverse* res_old, int numPoints, CodiTempqDers* tempdq)
 {
     if (iter == 0)
         cout<<"\nStarting FuncDelta"<<endl;
 
     int rks = configData.core.rks;
-    double cfl = configData.core.cfl;
-    double power = configData.core.power;
-    func_delta(globaldata, numPoints, cfl);
+    codi::RealReverse cfl = configData.core.cfl;
+    codi::RealReverse power = configData.core.power;
+    func_delta_codi(globaldata, numPoints, cfl);
 
     for(int rk=0; rk<rks; rk++)
     {
 
-        q_variables(globaldata, numPoints);
+        q_variables_codi(globaldata, numPoints);
 
-        q_var_derivatives(globaldata, numPoints, power);
+        q_var_derivatives_codi(globaldata, numPoints, power);
 
         // cout<<endl;
         // for(int index = 0; index<4; index++)
@@ -222,10 +223,10 @@ void fpi_solver(int iter, Point* globaldata, Config configData, double res_old[1
 
         for(int inner_iters=0; inner_iters<2; inner_iters++) // 3 inner iters
         {
-            q_var_derivatives_innerloop(globaldata, numPoints, power, tempdq);
+            q_var_derivatives_innerloop_codi(globaldata, numPoints, power, tempdq);
         };
 
-        cal_flux_residual(globaldata, numPoints, configData);
+        cal_flux_residual_codi(globaldata, numPoints, configData);
 
 
         // cout<<endl;
@@ -234,7 +235,7 @@ void fpi_solver(int iter, Point* globaldata, Config configData, double res_old[1
         //     cout<<std::fixed<<std::setprecision(17)<<globaldata[0].flux_res[index]<<"   ";
         // }
 
-        state_update(globaldata, numPoints, configData, iter, res_old, rk, rks);
+        state_update_codi(globaldata, numPoints, configData, iter, res_old, rk, rks);
 
         // cout<<endl;
         // for(int index = 0; index<4; index++)
@@ -245,19 +246,19 @@ void fpi_solver(int iter, Point* globaldata, Config configData, double res_old[1
     }
 }
 
-void q_variables(Point* globaldata, int numPoints)
+void q_variables_codi(CodiPoint* globaldata, int numPoints)
 {
-    double q_result[4] = {0};
+    codi::RealReverse q_result[4] = {0};
     
     for(int idx=0; idx<numPoints; idx++)
     {
-        double rho = globaldata[idx].prim[0];
-        double u1 = globaldata[idx].prim[1];
-        double u2 = globaldata[idx].prim[2];
-        double pr = globaldata[idx].prim[3];
-        double beta = 0.5 * (rho/pr);
+        codi::RealReverse rho = globaldata[idx].prim[0];
+        codi::RealReverse u1 = globaldata[idx].prim[1];
+        codi::RealReverse u2 = globaldata[idx].prim[2];
+        codi::RealReverse pr = globaldata[idx].prim[3];
+        codi::RealReverse beta = 0.5 * (rho/pr);
 
-        double two_times_beta = 2.0 * beta;
+        codi::RealReverse two_times_beta = 2.0 * beta;
         q_result[0] = log(rho) + log(beta) * 2.5 - (beta * ((u1 * u1) + (u2 * u2)));
         q_result[1] = (two_times_beta * u1);
         q_result[2] = (two_times_beta * u2);
@@ -270,18 +271,18 @@ void q_variables(Point* globaldata, int numPoints)
 
 }
 
-void q_var_derivatives(Point* globaldata, int numPoints, double power)
+void q_var_derivatives_codi(CodiPoint* globaldata, int numPoints, codi::RealReverse power)
 {
 
-    double sig_del_x_del_q[4], sig_del_y_del_q[4], min_q[4], max_q[4];
+    codi::RealReverse sig_del_x_del_q[4], sig_del_y_del_q[4], min_q[4], max_q[4];
 
     for(int idx=0; idx<numPoints; idx++)
     {
-        double x_i = globaldata[idx].x;
-        double y_i = globaldata[idx].y;
-        double sig_del_x_sqr = 0.0;
-        double sig_del_y_sqr = 0.0;
-        double sig_del_x_del_y = 0.0;
+        codi::RealReverse x_i = globaldata[idx].x;
+        codi::RealReverse y_i = globaldata[idx].y;
+        codi::RealReverse sig_del_x_sqr = 0.0;
+        codi::RealReverse sig_del_y_sqr = 0.0;
+        codi::RealReverse sig_del_x_del_y = 0.0;
 
         for(int i=0; i<4; i++)
         {
@@ -305,21 +306,21 @@ void q_var_derivatives(Point* globaldata, int numPoints, double power)
 
             conn = conn - 1; // To account for the indexing difference
 
-            double x_k = globaldata[conn].x;
-            double y_k = globaldata[conn].y;
+            codi::RealReverse x_k = globaldata[conn].x;
+            codi::RealReverse y_k = globaldata[conn].y;
 
-            double delta_x = x_k - x_i;
-            double delta_y = y_k - y_i;
+            codi::RealReverse delta_x = x_k - x_i;
+            codi::RealReverse delta_y = y_k - y_i;
 
-            double dist = hypot(delta_x, delta_y);
-            double weights = pow(dist, power);
+            codi::RealReverse dist = sqrt(delta_x*delta_x + delta_y*delta_y);
+            codi::RealReverse weights = pow(dist, power);
             sig_del_x_sqr += ((delta_x * delta_x) * weights);
             sig_del_y_sqr += ((delta_y * delta_y) * weights);
             sig_del_x_del_y += ((delta_x * delta_y) * weights);
 
             for(int iter=0; iter<4; iter++)
             {
-                double intermediate_var = weights * (globaldata[conn].q[iter] - globaldata[idx].q[iter]);
+                codi::RealReverse intermediate_var = weights * (globaldata[conn].q[iter] - globaldata[idx].q[iter]);
                 sig_del_x_del_q[iter] = sig_del_x_del_q[iter] + (delta_x * intermediate_var);
                 sig_del_y_del_q[iter] = sig_del_y_del_q[iter] + (delta_y * intermediate_var);
 
@@ -359,8 +360,8 @@ void q_var_derivatives(Point* globaldata, int numPoints, double power)
 
         //q_var_derivatives_update(sig_del_x_sqr, sig_del_y_sqr, sig_del_x_del_y, sig_del_x_del_q, sig_del_y_del_q, max_q, min_q);
 
-        double det = (sig_del_x_sqr * sig_del_y_sqr) - (sig_del_x_del_y * sig_del_x_del_y);
-        double one_by_det = 1.0/det;
+        codi::RealReverse det = (sig_del_x_sqr * sig_del_y_sqr) - (sig_del_x_del_y * sig_del_x_del_y);
+        codi::RealReverse one_by_det = 1.0/det;
 
         // if(idx == 0)
         // {
@@ -387,18 +388,18 @@ void q_var_derivatives(Point* globaldata, int numPoints, double power)
     }
 }
 
-void q_var_derivatives_innerloop(Point* globaldata, int numPoints, double power, TempqDers* tempdq)
+void q_var_derivatives_innerloop_codi(CodiPoint* globaldata, int numPoints, codi::RealReverse power, CodiTempqDers* tempdq)
 {   
 
-    double sig_del_x_del_q[4], sig_del_y_del_q[4], qi_tilde[4] ={0}, qk_tilde[4] = {0};
+    codi::RealReverse sig_del_x_del_q[4], sig_del_y_del_q[4], qi_tilde[4] ={0}, qk_tilde[4] = {0};
 
     for(int idx=0; idx<numPoints; idx++)
     {
-        double x_i = globaldata[idx].x;
-        double y_i = globaldata[idx].y;
-        double sig_del_x_sqr = 0.0;
-        double sig_del_y_sqr = 0.0;
-        double sig_del_x_del_y = 0.0;
+        codi::RealReverse x_i = globaldata[idx].x;
+        codi::RealReverse y_i = globaldata[idx].y;
+        codi::RealReverse sig_del_x_sqr = 0.0;
+        codi::RealReverse sig_del_y_sqr = 0.0;
+        codi::RealReverse sig_del_x_del_y = 0.0;
 
         for(int i=0; i<4; i++)
         {
@@ -413,14 +414,15 @@ void q_var_derivatives_innerloop(Point* globaldata, int numPoints, double power,
 
             conn = conn - 1;
 
-            double x_k = globaldata[conn].x;
-            double y_k = globaldata[conn].y;
+            codi::RealReverse x_k = globaldata[conn].x;
+            codi::RealReverse y_k = globaldata[conn].y;
 
-            double delta_x = x_k - x_i;
-            double delta_y = y_k - y_i;
+            codi::RealReverse delta_x = x_k - x_i;
+            codi::RealReverse delta_y = y_k - y_i;
 
-            double dist = hypot(delta_x, delta_y);
-            double weights = pow(dist, power);
+            //double dist = hypot(delta_x, delta_y);
+            codi::RealReverse dist = sqrt(delta_x*delta_x + delta_y*delta_y);
+            codi::RealReverse weights = pow(dist, power);
             sig_del_x_sqr += ((delta_x * delta_x) * weights);
             sig_del_y_sqr += ((delta_y * delta_y) * weights);
             sig_del_x_del_y += ((delta_x * delta_y) * weights);
@@ -428,8 +430,8 @@ void q_var_derivatives_innerloop(Point* globaldata, int numPoints, double power,
             q_var_derivatives_get_sum_delq_innerloop(globaldata, idx, conn, weights, delta_x, delta_y, qi_tilde, qk_tilde, sig_del_x_del_q, sig_del_y_del_q);
         }
 
-        double det = (sig_del_x_sqr * sig_del_y_sqr) - (sig_del_x_del_y * sig_del_x_del_y);
-        double one_by_det = 1.0/det;
+        codi::RealReverse det = (sig_del_x_sqr * sig_del_y_sqr) - (sig_del_x_del_y * sig_del_x_del_y);
+        codi::RealReverse one_by_det = 1.0/det;
 
         for(int iter =0; iter<4; iter++)
         {
@@ -452,7 +454,7 @@ void q_var_derivatives_innerloop(Point* globaldata, int numPoints, double power,
     }
 }
 
-inline void q_var_derivatives_get_sum_delq_innerloop(Point* globaldata, int idx, int conn, double weights, double delta_x, double delta_y, double qi_tilde[4], double qk_tilde[4], double sig_del_x_del_q[4], double sig_del_y_del_q[4])
+inline void q_var_derivatives_get_sum_delq_innerloop(CodiPoint* globaldata, int idx, int conn, codi::RealReverse weights, codi::RealReverse delta_x, codi::RealReverse delta_y, codi::RealReverse qi_tilde[4], codi::RealReverse qk_tilde[4], codi::RealReverse sig_del_x_del_q[4], codi::RealReverse sig_del_y_del_q[4])
 {
     for(int iter=0; iter<4; iter++)
     {
@@ -461,13 +463,13 @@ inline void q_var_derivatives_get_sum_delq_innerloop(Point* globaldata, int idx,
         qk_tilde[iter] = globaldata[conn].q[iter] - 0.5 * (delta_x * globaldata[conn].dq1[iter] + delta_y * globaldata[conn].dq2[iter]);
 
 
-        double intermediate_var = weights * (qk_tilde[iter] - qi_tilde[iter]);
+        codi::RealReverse intermediate_var = weights * (qk_tilde[iter] - qi_tilde[iter]);
         sig_del_x_del_q[iter] += (delta_x * intermediate_var);
         sig_del_y_del_q[iter] += (delta_y * intermediate_var);
     }
 }
 
-inline void q_var_derivatives_update_innerloop(double dq1[4], double dq2[4], int idx, TempqDers* tempdq)
+inline void q_var_derivatives_update_innerloop(codi::RealReverse dq1[4], codi::RealReverse dq2[4], int idx, CodiTempqDers* tempdq)
 {
     for(int iter=0; iter<4; iter++)
     {
@@ -475,8 +477,4 @@ inline void q_var_derivatives_update_innerloop(double dq1[4], double dq2[4], int
         dq2[iter] = tempdq[idx].dq2[iter];
 
     }
-
 }
-
-
-

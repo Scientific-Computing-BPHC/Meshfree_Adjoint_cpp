@@ -1,8 +1,8 @@
 #include "point.hpp"
 #include "limiters.hpp"
 
-inline void update_qtildes(double qtilde[4], double q[4], double dq1[4], double dq2[4], double delta_x, double delta_y);
-inline void update_qtildes(double qtilde[4], double q[4], double dq1[4], double dq2[4], double delta_x, double delta_y, double phi[4]);
+inline void update_qtildes(codi::RealReverse qtilde[4], codi::RealReverse q[4], codi::RealReverse dq1[4], codi::RealReverse dq2[4], codi::RealReverse delta_x, codi::RealReverse delta_y);
+inline void update_qtildes(codi::RealReverse qtilde[4], codi::RealReverse q[4], codi::RealReverse dq1[4], codi::RealReverse dq2[4], codi::RealReverse delta_x, codi::RealReverse delta_y, codi::RealReverse phi[4]);
 
 template <class Type>
 bool isNan(Type var)
@@ -11,17 +11,17 @@ bool isNan(Type var)
     return false;
 }
 
-void venkat_limiter(double qtilde[4], double vl_const, Point* globaldata, int index, double gamma, double phi[4])
+void venkat_limiter(codi::RealReverse qtilde[4], codi::RealReverse vl_const, CodiPoint* globaldata, int index, codi::RealReverse gamma, codi::RealReverse phi[4])
 {
-	double ds = globaldata[index].short_distance;
-	double epsi = vl_const * ds;
+	codi::RealReverse ds = globaldata[index].short_distance;
+	codi::RealReverse epsi = vl_const * ds;
 	epsi = epsi * epsi * epsi;
-	double del_pos = 0.0;
-	double del_neg = 0.0;
+	codi::RealReverse del_pos = 0.0;
+	codi::RealReverse del_neg = 0.0;
 	VLBroadcaster(globaldata[index].q, qtilde, globaldata[index].max_q, globaldata[index].min_q, phi, epsi, del_pos, del_neg);
 }
 
-void VLBroadcaster(double q[4], double qtilde[4], double max_q[4], double min_q[4], double phi[4], double epsi, double del_pos, double del_neg)
+void VLBroadcaster(codi::RealReverse q[4], codi::RealReverse qtilde[4], codi::RealReverse max_q[4], codi::RealReverse min_q[4], codi::RealReverse phi[4], codi::RealReverse epsi, codi::RealReverse del_pos, codi::RealReverse del_neg)
 {
 	for(int i=0; i<4; i++)
 	{
@@ -39,14 +39,14 @@ void VLBroadcaster(double q[4], double qtilde[4], double max_q[4], double min_q[
 			else if (del_neg < 0)
 				del_pos = min_q[i] - q[i];
 
-			double num = (del_pos*del_pos) + (epsi*epsi);
+			codi::RealReverse num = (del_pos*del_pos) + (epsi*epsi);
 			num = (num*del_neg) + 2 * (del_neg*del_neg*del_pos);
 
-			double den = (del_pos*del_pos) + (2*del_neg*del_neg);
+			codi::RealReverse den = (del_pos*del_pos) + (2*del_neg*del_neg);
 			den = den + (del_neg*del_pos) + (epsi*epsi);
 			den = den*del_neg;
 
-			double temp = num/den;
+			codi::RealReverse temp = num/den;
 			if (temp<1.0)
 				phi[i] = temp;
 			else
@@ -56,13 +56,13 @@ void VLBroadcaster(double q[4], double qtilde[4], double max_q[4], double min_q[
 	}
 }
 
-conn_tuple connectivity_stats(double x_i, double y_i, double nx, double ny, double power, double conn_x, double conn_y, double sig_del_x_sqr, double sig_del_y_sqr, double sig_del_x_del_y)
+conn_tuple connectivity_stats(codi::RealReverse x_i, codi::RealReverse y_i, codi::RealReverse nx, codi::RealReverse ny, codi::RealReverse power, codi::RealReverse conn_x, codi::RealReverse conn_y, codi::RealReverse sig_del_x_sqr, codi::RealReverse sig_del_y_sqr, codi::RealReverse sig_del_x_del_y)
 {
-    double x_k = conn_x;
-    double y_k = conn_y;
+    codi::RealReverse x_k = conn_x;
+    codi::RealReverse y_k = conn_y;
     
-    double delta_x = x_k - x_i;
-    double delta_y = y_k - y_i;
+    codi::RealReverse delta_x = x_k - x_i;
+    codi::RealReverse delta_y = y_k - y_i;
 
     int deb = 0;
     if(deb)
@@ -71,8 +71,8 @@ conn_tuple connectivity_stats(double x_i, double y_i, double nx, double ny, doub
     	cout<<"ny: "<<ny<<endl;
     }
     
-    double delta_s = delta_x*ny - delta_y*nx;
-    double delta_n = delta_x*nx + delta_y*ny;
+    codi::RealReverse delta_s = delta_x*ny - delta_y*nx;
+    codi::RealReverse delta_n = delta_x*nx + delta_y*ny;
 
     if(deb)
     {
@@ -80,11 +80,11 @@ conn_tuple connectivity_stats(double x_i, double y_i, double nx, double ny, doub
     	cout<<"delta_n: "<<delta_n<<endl;
     }
     
-    double dist = sqrt(delta_s*delta_s + delta_n*delta_n);
-    double weights = pow(dist, power);
+    codi::RealReverse dist = sqrt(delta_s*delta_s + delta_n*delta_n);
+    codi::RealReverse weights = pow(dist, power);
     
-    double delta_s_weights = delta_s*weights;
-    double delta_n_weights = delta_n*weights;
+    codi::RealReverse delta_s_weights = delta_s*weights;
+    codi::RealReverse delta_n_weights = delta_n*weights;
 
     if(deb)
     {
@@ -101,7 +101,7 @@ conn_tuple connectivity_stats(double x_i, double y_i, double nx, double ny, doub
     return return_result;
  }
 
-void calculate_qtile(double qtilde_i[4], double qtilde_k[4], Point* globaldata, int idx, int conn, double delta_x, double delta_y, double vl_const, double gamma, int limiter_flag, double phi_i[4], double phi_k[4])
+void calculate_qtile(codi::RealReverse qtilde_i[4], codi::RealReverse qtilde_k[4], CodiPoint* globaldata, int idx, int conn, codi::RealReverse delta_x, codi::RealReverse delta_y, codi::RealReverse vl_const, codi::RealReverse gamma, int limiter_flag, codi::RealReverse phi_i[4], codi::RealReverse phi_k[4])
 {
 	update_qtildes(qtilde_i, globaldata[idx].q, globaldata[idx].dq1, globaldata[idx].dq2, delta_x, delta_y);
 	update_qtildes(qtilde_k, globaldata[conn].q, globaldata[conn].dq1, globaldata[conn].dq2, delta_x, delta_y);
@@ -172,7 +172,7 @@ void calculate_qtile(double qtilde_i[4], double qtilde_k[4], Point* globaldata, 
 
 
 
-inline void update_qtildes(double qtilde[4], double q[4], double dq1[4], double dq2[4], double delta_x, double delta_y)
+inline void update_qtildes(codi::RealReverse qtilde[4], codi::RealReverse q[4], codi::RealReverse dq1[4], codi::RealReverse dq2[4], codi::RealReverse delta_x, codi::RealReverse delta_y)
 {
 	for(int iter=0; iter<4; iter++)
 	{
@@ -187,7 +187,7 @@ inline void update_qtildes(double qtilde[4], double q[4], double dq1[4], double 
 	}
 }
 
-inline void update_qtildes(double qtilde[4], double q[4], double dq1[4], double dq2[4], double delta_x, double delta_y, double phi[4])
+inline void update_qtildes(codi::RealReverse qtilde[4], codi::RealReverse q[4], codi::RealReverse dq1[4], codi::RealReverse dq2[4], codi::RealReverse delta_x, codi::RealReverse delta_y, codi::RealReverse phi[4])
 {
 	for(int iter=0; iter<4; iter++)
 	{
@@ -195,34 +195,34 @@ inline void update_qtildes(double qtilde[4], double q[4], double dq1[4], double 
 	}
 }
 
-void update_delf(double sig_del_x_del_f[4], double sig_del_y_del_f[4], double G_k[4], double G_i[4], double delta_s_weights, double delta_n_weights)
+void update_delf(codi::RealReverse sig_del_x_del_f[4], codi::RealReverse sig_del_y_del_f[4], codi::RealReverse G_k[4], codi::RealReverse G_i[4], codi::RealReverse delta_s_weights, codi::RealReverse delta_n_weights)
 {
 	for(int iter=0; iter<4; iter++)
 	{
-		double intermediate_var = G_k[iter] - G_i[iter];
+		codi::RealReverse intermediate_var = G_k[iter] - G_i[iter];
 		sig_del_x_del_f[iter] += (intermediate_var * delta_s_weights);
 		sig_del_y_del_f[iter] += (intermediate_var * delta_n_weights);
 	}
 }
 
-void qtilde_to_primitive(double result[4], double qtilde[4], double gamma)
+void qtilde_to_primitive(codi::RealReverse result[4], codi::RealReverse qtilde[4], codi::RealReverse gamma)
 {
-    double beta = -qtilde[3]*0.5;
-    double temp = 0.5/beta;
-    double u1 = qtilde[1]*temp;
-    double u2 = qtilde[2]*temp;
+    codi::RealReverse beta = -qtilde[3]*0.5;
+    codi::RealReverse temp = 0.5/beta;
+    codi::RealReverse u1 = qtilde[1]*temp;
+    codi::RealReverse u2 = qtilde[2]*temp;
 
-    double temp1 = qtilde[0] + beta*(u1*u1 + u2*u2);
-    double temp2 = temp1 - (log(beta)/(gamma-1));
-    double rho = exp(temp2);
-    double pr = rho*temp;
+    codi::RealReverse temp1 = qtilde[0] + beta*(u1*u1 + u2*u2);
+    codi::RealReverse temp2 = temp1 - (log(beta)/(gamma-1));
+    codi::RealReverse rho = exp(temp2);
+    codi::RealReverse pr = rho*temp;
     result[0] = u1;
     result[1] = u2;
     result[2] = rho;
     result[3] = pr;
 }
 
-// void temp_debug(int idx, double phi_i[4], double phi_k[4], double qtilde_i[4], double qtilde_k[4])
+// void temp_debug(int idx, codi::RealReverse phi_i[4], codi::RealReverse phi_k[4], codi::RealReverse qtilde_i[4], codi::RealReverse qtilde_k[4])
 // {
 
 // }

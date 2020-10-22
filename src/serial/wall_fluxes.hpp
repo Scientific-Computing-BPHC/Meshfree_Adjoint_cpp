@@ -4,9 +4,9 @@
 #include "point.hpp"
 #include "split_fluxes.hpp"
 
-void wall_dGx_pos(Point* globaldata, int idx, double Gxp[4], Config configData);
+void wall_dGx_pos(CodiPoint* globaldata, int idx, codi::RealReverse Gxp[4], CodiConfig configData);
 
-void wall_dGx_neg(Point* globaldata, int idx, double Gxn[4], Config configData);
+void wall_dGx_neg(CodiPoint* globaldata, int idx, codi::RealReverse Gxn[4], CodiConfig configData);
 
-void wall_dGy_neg(Point* globaldata, int idx, double Gyn[4], Config configData);
+void wall_dGy_neg(CodiPoint* globaldata, int idx, codi::RealReverse Gyn[4], CodiConfig configData);
 #endif

@@ -26,10 +26,11 @@ typedef std::map<char, double> char_double_map;
 typedef std::vector<std::string> vec_str;
 typedef std::vector<double> vec_doub;
 typedef std::vector<long double> vec_ldoub;
-typedef std::tuple <double, double> xy_tuple;
-typedef std::tuple <double, double, double, double, double, double, double> conn_tuple;
 
-xy_tuple getxy(Point self);
-void setNormals(Point* globaldata, int idx, xy_tuple n);
+typedef std::tuple <codi::RealReverse, codi::RealReverse> xy_tuple;
+typedef std::tuple <codi::RealReverse, codi::RealReverse, codi::RealReverse, codi::RealReverse, codi::RealReverse, codi::RealReverse, codi::RealReverse> conn_tuple;
+
+xy_tuple getxy(CodiPoint self);
+void setNormals(CodiPoint* globaldata, int idx, xy_tuple n);
 
 #endif

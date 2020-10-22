@@ -30,8 +30,8 @@ typedef std::vector<long double> vec_ldoub;
 bool debug_mode = true;
 
 void meshfree_solver(char* file_name, int num_iters);
-void run_code(Point* globaldata, Config configData, double res_old[1], int numPoints, double tempdq[][2][4], int max_iters);
-void test_code(Point* globaldata, Config configData, double res_old[1], int numPoints, int max_iters);
+void run_code(CodiPoint* globaldata, CodiConfig configData, codi::RealReverse* res_old, int numPoints, codi::RealReverse tempdq[][2][4], int max_iters);
+void test_code(CodiPoint* globaldata, CodiConfig configData, codi::RealReverse* res_old, int numPoints, int max_iters);
 
 int main(int argc, char **argv)
 {
@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 void meshfree_solver(char* file_name, int max_iters)
 {
 
-	Config configData = Config();
+	CodiConfig configData = CodiConfig();
 	configData.setConfig();
 	if (debug_mode)
 		configData.printConfig();
@@ -136,10 +136,10 @@ void meshfree_solver(char* file_name, int max_iters)
 	}
 #endif
 
-	Point* globaldata = new Point[numPoints];
-	double res_old[1] = {0.0};
+	CodiPoint* globaldata = new CodiPoint[numPoints];
+	codi::RealReverse res_old[1] = {0.0};
 
-	double defprimal[4];
+	codi::RealReverse defprimal[4];
 	getInitialPrimitive(configData, defprimal);
 	//printPrimal(defprimal);
 
@@ -379,30 +379,37 @@ void meshfree_solver(char* file_name, int max_iters)
 }	
 
 
-void run_code(Point* globaldata, Config configData, double res_old[1], int numPoints, TempqDers* tempdq, int max_iters)
+void run_code(CodiPoint* globaldata, CodiConfig configData, codi::RealReverse* res_old, int numPoints, CodiTempqDers* tempdq, int max_iters)
 {
 	auto begin = std::chrono::high_resolution_clock::now();
-	
+	codi::RealReverse::TapeType& tape = codi::RealReverse::getGlobalTape();
+  	tape.setActive();
+	  tape.registerInput(globaldata[10].x);
 	for (int i=0; i<max_iters; i++)
 	{
 		//debug_main_store(main_store);
-		fpi_solver(i, globaldata, configData, res_old, numPoints, tempdq);
+		fpi_solver_codi(i, globaldata, configData, res_old, numPoints, tempdq);
 	}
+	tape.registerOutput(globaldata[10].prim[2]);
+	tape.setPassive();
+	globaldata[10].prim[2].setGradient(1.0);
+  	tape.evaluate();
+	cout<<"\n Required Sensitivity is: "<<globaldata[10].x.getGradient()<<endl;
 
 	auto end = std::chrono::high_resolution_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin);
-	printf("Time measured: %.5f seconds.\n", elapsed.count() * 1e-9);
+	printf("\nTime measured: %.5f seconds.\n", elapsed.count() * 1e-9);
 }
 
 
-void test_code(Point* globaldata, Config configData, double res_old[1], int numPoints, int max_iters)
+void test_code(CodiPoint* globaldata, CodiConfig configData, codi::RealReverse* res_old, int numPoints, int max_iters)
 {
 	cout<<"\nStarting warmup function \n";
 	res_old[0] = 0.0;
 
 	cout<<"\nStarting main function \n";
-	TempqDers* tempdq = new TempqDers[numPoints];
-	cout<<"\n no seg fault till here \n";
+	CodiTempqDers* tempdq = new CodiTempqDers[numPoints];
+	//cout<<"\n no seg fault till here \n";
 
 	for (int i=0; i<numPoints; i++)
 		tempdq[i].setTempdq();

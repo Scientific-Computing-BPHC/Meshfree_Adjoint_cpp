@@ -1,25 +1,25 @@
 #include "split_fluxes.hpp"
 
-void flux_Gxp(double Gxp[4], double nx, double ny, double u1, double u2, double rho, double pr)
+void flux_Gxp(codi::RealReverse Gxp[4], codi::RealReverse nx, codi::RealReverse ny, codi::RealReverse u1, codi::RealReverse u2, codi::RealReverse rho, codi::RealReverse pr)
 {
-	double tx = ny;
-	double ty = -nx;
+	codi::RealReverse tx = ny;
+	codi::RealReverse ty = -nx;
 
-	double ut = u1*tx + u2*ty;
-	double un = u1*nx + u2*ny;
+	codi::RealReverse ut = u1*tx + u2*ty;
+	codi::RealReverse un = u1*nx + u2*ny;
 
-	double beta = 0.5*rho/pr;
-	double S1 = ut*sqrt(beta);
-	double B1 = 0.5*exp(-S1*S1)/sqrt(M_PI*beta);
-	double A1pos = 0.5*(1 + erf(S1));
+	codi::RealReverse beta = 0.5*rho/pr;
+	codi::RealReverse S1 = ut*sqrt(beta);
+	codi::RealReverse B1 = 0.5*exp(-S1*S1)/sqrt(M_PI*beta);
+	codi::RealReverse A1pos = 0.5*(1 + erf(S1));
 
-	double pr_by_rho = pr/rho;
-	double u_sqr = ut*ut + un*un;
+	codi::RealReverse pr_by_rho = pr/rho;
+	codi::RealReverse u_sqr = ut*ut + un*un;
 
 	Gxp[0] = (rho*(ut*A1pos + B1));
 
-	double temp1 = pr_by_rho + ut*ut;
-	double temp2 = temp1*A1pos + ut*B1;
+	codi::RealReverse temp1 = pr_by_rho + ut*ut;
+	codi::RealReverse temp2 = temp1*A1pos + ut*B1;
 
 	Gxp[1] = (rho*temp2);
 
@@ -33,26 +33,26 @@ void flux_Gxp(double Gxp[4], double nx, double ny, double u1, double u2, double 
 
 }
 
-void flux_Gxn(double Gxn[4], double nx, double ny, double u1, double u2, double rho, double pr)
+void flux_Gxn(codi::RealReverse Gxn[4], codi::RealReverse nx, codi::RealReverse ny, codi::RealReverse u1, codi::RealReverse u2, codi::RealReverse rho, codi::RealReverse pr)
 {
-	double tx = ny;
-	double ty = -nx;
+	codi::RealReverse tx = ny;
+	codi::RealReverse ty = -nx;
 
-	double ut = u1*tx + u2*ty;
-	double un = u1*nx + u2*ny;
+	codi::RealReverse ut = u1*tx + u2*ty;
+	codi::RealReverse un = u1*nx + u2*ny;
 
-	double beta = 0.5*rho/pr;
-	double S1 = ut*sqrt(beta);
-	double B1 = 0.5*exp(-S1*S1)/sqrt(M_PI*beta);
-	double A1neg = 0.5*(1 - erf(S1));
+	codi::RealReverse beta = 0.5*rho/pr;
+	codi::RealReverse S1 = ut*sqrt(beta);
+	codi::RealReverse B1 = 0.5*exp(-S1*S1)/sqrt(M_PI*beta);
+	codi::RealReverse A1neg = 0.5*(1 - erf(S1));
 
-	double pr_by_rho = pr/rho;
-	double u_sqr = ut*ut + un*un;
+	codi::RealReverse pr_by_rho = pr/rho;
+	codi::RealReverse u_sqr = ut*ut + un*un;
 
 	Gxn[0] = (rho*(ut*A1neg - B1));
 
-	double temp1 = pr_by_rho + ut*ut;
-	double temp2 = temp1*A1neg - ut*B1;
+	codi::RealReverse temp1 = pr_by_rho + ut*ut;
+	codi::RealReverse temp2 = temp1*A1neg - ut*B1;
 
 	Gxn[1] = (rho*temp2);
 
@@ -66,26 +66,26 @@ void flux_Gxn(double Gxn[4], double nx, double ny, double u1, double u2, double 
 
 }
 
-void flux_Gyn(double Gyn[4], double nx, double ny, double u1, double u2, double rho, double pr)
+void flux_Gyn(codi::RealReverse Gyn[4], codi::RealReverse nx, codi::RealReverse ny, codi::RealReverse u1, codi::RealReverse u2, codi::RealReverse rho, codi::RealReverse pr)
 {
-	double tx = ny;
-	double ty = -nx;
+	codi::RealReverse tx = ny;
+	codi::RealReverse ty = -nx;
 
-	double ut = u1*tx + u2*ty;
-	double un = u1*nx + u2*ny;
+	codi::RealReverse ut = u1*tx + u2*ty;
+	codi::RealReverse un = u1*nx + u2*ny;
 
-	double beta = 0.5*rho/pr;
-	double S2 = un*sqrt(beta);
-	double B2 = 0.5*exp(-S2*S2)/sqrt(M_PI*beta);
-	double A2neg = 0.5*(1 - erf(S2));
+	codi::RealReverse beta = 0.5*rho/pr;
+	codi::RealReverse S2 = un*sqrt(beta);
+	codi::RealReverse B2 = 0.5*exp(-S2*S2)/sqrt(M_PI*beta);
+	codi::RealReverse A2neg = 0.5*(1 - erf(S2));
 
-	double pr_by_rho = pr/rho;
-	double u_sqr = ut*ut + un*un;
+	codi::RealReverse pr_by_rho = pr/rho;
+	codi::RealReverse u_sqr = ut*ut + un*un;
 
 	Gyn[0] = (rho*(un*A2neg - B2));
 
-	double temp1 = pr_by_rho + un*un;
-	double temp2 = temp1*A2neg -un*B2;
+	codi::RealReverse temp1 = pr_by_rho + un*un;
+	codi::RealReverse temp2 = temp1*A2neg -un*B2;
 
 	temp1 = ut*un*A2neg - ut*B2;
 	Gyn[1] = (rho*temp1);
@@ -99,26 +99,26 @@ void flux_Gyn(double Gyn[4], double nx, double ny, double u1, double u2, double 
 
 }
 
-void flux_Gyp(double Gyp[4], double nx, double ny, double u1, double u2, double rho, double pr)
+void flux_Gyp(codi::RealReverse Gyp[4], codi::RealReverse nx, codi::RealReverse ny, codi::RealReverse u1, codi::RealReverse u2, codi::RealReverse rho, codi::RealReverse pr)
 {
-	double tx = ny;
-	double ty = -nx;
+	codi::RealReverse tx = ny;
+	codi::RealReverse ty = -nx;
 
-	double ut = u1*tx + u2*ty;
-	double un = u1*nx + u2*ny;
+	codi::RealReverse ut = u1*tx + u2*ty;
+	codi::RealReverse un = u1*nx + u2*ny;
 
-	double beta = 0.5*rho/pr;
-	double S2 = un*sqrt(beta);
-	double B2 = 0.5*exp(-S2*S2)/sqrt(M_PI*beta);
-	double A2pos = 0.5*(1 + erf(S2));
+	codi::RealReverse beta = 0.5*rho/pr;
+	codi::RealReverse S2 = un*sqrt(beta);
+	codi::RealReverse B2 = 0.5*exp(-S2*S2)/sqrt(M_PI*beta);
+	codi::RealReverse A2pos = 0.5*(1 + erf(S2));
 
-	double pr_by_rho = pr/rho;
-	double u_sqr = ut*ut + un*un;
+	codi::RealReverse pr_by_rho = pr/rho;
+	codi::RealReverse u_sqr = ut*ut + un*un;
 
 	Gyp[0] = (rho*(un*A2pos + B2));
 
-	double temp1 = pr_by_rho + un*un;
-	double temp2 = temp1*A2pos +un*B2;
+	codi::RealReverse temp1 = pr_by_rho + un*un;
+	codi::RealReverse temp2 = temp1*A2pos +un*B2;
 
 	temp1 = ut*un*A2pos + ut*B2;
 	Gyp[1] = (rho*temp1);
@@ -132,13 +132,13 @@ void flux_Gyp(double Gyp[4], double nx, double ny, double u1, double u2, double 
 
 }
 
-void flux_Gx(double Gx[4], double nx, double ny, double u1, double u2, double rho, double pr)
+void flux_Gx(codi::RealReverse Gx[4], codi::RealReverse nx, codi::RealReverse ny, codi::RealReverse u1, codi::RealReverse u2, codi::RealReverse rho, codi::RealReverse pr)
 {
-	double tx = ny;
-	double ty = -nx;
+	codi::RealReverse tx = ny;
+	codi::RealReverse ty = -nx;
 
-	double ut = u1*tx + u2*ty;
-	double un = u1*nx + u2*ny;
+	codi::RealReverse ut = u1*tx + u2*ty;
+	codi::RealReverse un = u1*nx + u2*ny;
 
     Gx[0] = rho*ut;
 
@@ -146,18 +146,18 @@ void flux_Gx(double Gx[4], double nx, double ny, double u1, double u2, double rh
 
     Gx[2] = rho*ut*un;
 
-    double temp1 = 0.5*(ut*ut + un*un);
-    double rho_e = 2.5*pr + rho*temp1;
+    codi::RealReverse temp1 = 0.5*(ut*ut + un*un);
+    codi::RealReverse rho_e = 2.5*pr + rho*temp1;
     Gx[3] = (pr + rho_e)*ut;
 }
 
-void flux_Gy(double Gy[4], double nx, double ny, double u1, double u2, double rho, double pr)
+void flux_Gy(codi::RealReverse Gy[4], codi::RealReverse nx, codi::RealReverse ny, codi::RealReverse u1, codi::RealReverse u2, codi::RealReverse rho, codi::RealReverse pr)
 {
-	double tx = ny;
-	double ty = -nx;
+	codi::RealReverse tx = ny;
+	codi::RealReverse ty = -nx;
 
-	double ut = u1*tx + u2*ty;
-	double un = u1*nx + u2*ny;
+	codi::RealReverse ut = u1*tx + u2*ty;
+	codi::RealReverse un = u1*nx + u2*ny;
 
     Gy[0] = rho*un;
 
@@ -165,7 +165,7 @@ void flux_Gy(double Gy[4], double nx, double ny, double u1, double u2, double rh
 
     Gy[2] = pr + rho*un*un;
 
-    double temp1 = 0.5*(ut*ut + un*un);
-    double rho_e = 2.5*pr + rho*temp1;
+    codi::RealReverse temp1 = 0.5*(ut*ut + un*un);
+    codi::RealReverse rho_e = 2.5*pr + rho*temp1;
     Gy[3] = (pr + rho_e)*un;
 }

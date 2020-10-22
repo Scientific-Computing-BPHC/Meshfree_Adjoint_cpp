@@ -3,15 +3,15 @@
 
 #include "point.hpp"
 
-void flux_Gyn(double Gyn[4], double nx, double ny, double u1, double u2, double rho, double pr);
+void flux_Gyn(codi::RealReverse Gyn[4], codi::RealReverse nx, codi::RealReverse ny, codi::RealReverse u1, codi::RealReverse u2, codi::RealReverse rho, codi::RealReverse pr);
 
-void flux_Gyp(double Gyp[4], double nx, double ny, double u1, double u2, double rho, double pr);
+void flux_Gyp(codi::RealReverse Gyp[4], codi::RealReverse nx, codi::RealReverse ny, codi::RealReverse u1, codi::RealReverse u2, codi::RealReverse rho, codi::RealReverse pr);
 
-void flux_Gxp(double Gxp[4], double nx, double ny, double u1, double u2, double rho, double pr);
+void flux_Gxp(codi::RealReverse Gxp[4], codi::RealReverse nx, codi::RealReverse ny, codi::RealReverse u1, codi::RealReverse u2, codi::RealReverse rho, codi::RealReverse pr);
 
-void flux_Gxn(double Gxn[4], double nx, double ny, double u1, double u2, double rho, double pr);
+void flux_Gxn(codi::RealReverse Gxn[4], codi::RealReverse nx, codi::RealReverse ny, codi::RealReverse u1, codi::RealReverse u2, codi::RealReverse rho, codi::RealReverse pr);
 
-void flux_Gx(double Gx[4], double nx, double ny, double u1, double u2, double rho, double pr);
+void flux_Gx(codi::RealReverse Gx[4], codi::RealReverse nx, codi::RealReverse ny, codi::RealReverse u1, codi::RealReverse u2, codi::RealReverse rho, codi::RealReverse pr);
 
-void flux_Gy(double Gy[4], double nx, double ny, double u1, double u2, double rho, double pr);
+void flux_Gy(codi::RealReverse Gy[4], codi::RealReverse nx, codi::RealReverse ny, codi::RealReverse u1, codi::RealReverse u2, codi::RealReverse rho, codi::RealReverse pr);
 #endif

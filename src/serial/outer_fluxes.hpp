@@ -4,10 +4,10 @@
 #include "point.hpp"
 #include "split_fluxes.hpp"
 
-void outer_dGx_pos(Point* globaldata, int idx, double Gxp[4], Config configData);
+void outer_dGx_pos(CodiPoint* globaldata, int idx, codi::RealReverse Gxp[4], CodiConfig configData);
 
-void outer_dGx_neg(Point* globaldata, int idx, double Gxn[4], Config configData);
+void outer_dGx_neg(CodiPoint* globaldata, int idx, codi::RealReverse Gxn[4], CodiConfig configData);
 
-void outer_dGy_pos(Point* globaldata, int idx, double Gyp[4], Config configData);
+void outer_dGy_pos(CodiPoint* globaldata, int idx, codi::RealReverse Gyp[4], CodiConfig configData);
 
 #endif
