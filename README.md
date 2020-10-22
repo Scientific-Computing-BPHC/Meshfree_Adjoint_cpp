@@ -9,7 +9,7 @@ This work is done as part of my M.Sc. (Hons.) Mathematics Thesis, under the guid
 
 ## Roadmap
 
-- [ ] Serial Adjoint Code with CoDiPack
+- [X] Serial Adjoint Code with CoDiPack
 - [ ] Optimize and Benchmark Serial Primal once again
 - [ ] CUDAfy CoDiPack based Adjoint Solver
 
